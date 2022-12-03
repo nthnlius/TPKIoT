@@ -8,6 +8,17 @@ from jose import JWTError, jwt
 from pydantic import BaseModel
 import psycopg2 as psycopg
 import time
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DATABASE_USER = os.getenv('DATABASE_USER')
+DATABASE_NAME=os.getenv('DATABASE_NAME')
+DATABASE_HOST=os.getenv('DATABASE_HOST')
+DATABASE_PORT=os.getenv('DATABASE_PORT')
+DATABASE_PASSWORD=os.getenv('DATABASE_PASSWORD')
+
 app = FastAPI()
 defaultread = {
     "read_id":0,
@@ -63,7 +74,7 @@ def normdist(mean, stddev):
 def compare(read : list):
     ba=[]
     bb=[]
-    db= psycopg.connect(dbname = "vrhknqtr", user="vrhknqtr", password = "JiGHVmAPnBl77Wc1KyVwApir78hV8anj", port = 5432, host = "rosie.db.elephantsql.com")
+    db= psycopg.connect(dbname = DATABASE_NAME, user=DATABASE_USER, password = DATABASE_PASSWORD, port = DATABASE_PORT, host = DATABASE_HOST)
     query= db.cursor()
     query.execute("SELECT AVG(ph), AVG(turbidity), AVG(dissoxy), AVG(temp), AVG(orp), AVG(conductivity) FROM read_valid;")
     avg = query.fetchone()
@@ -99,7 +110,7 @@ async def add_process_time_header(request: Request, call_next):
     return response
 @app.post('/read', tags = ['Add reading'])
 def write_from_sensor (read : Reading = Body(default = "", embed=True)):
-    db= psycopg.connect(dbname = "vrhknqtr", user="vrhknqtr", password = "JiGHVmAPnBl77Wc1KyVwApir78hV8anj", port = 5432, host = "rosie.db.elephantsql.com")
+    db= psycopg.connect(dbname = DATABASE_NAME, user=DATABASE_USER, password = DATABASE_PASSWORD, port = DATABASE_PORT, host = DATABASE_HOST)
     query= db.cursor()
     pH = read.ph
     temp = read.temp
@@ -138,7 +149,7 @@ def write_from_sensor (read : Reading = Body(default = "", embed=True)):
 @app.get('/Averages', tags=['Counting Aggregate'])
 def count_averages():
     # db = psycopg.connect(dbname = "vrhknqtr", user="vrhknqtr", password = "ca84d1343b96baa8137c943ed1860e522cacb238", port = 5432, host="waterlity.csdxgsce0fbt.ap-southeast-1.rds.amazonaws.com")
-    db= psycopg.connect(dbname = "vrhknqtr", user="vrhknqtr", password = "JiGHVmAPnBl77Wc1KyVwApir78hV8anj", port = 5432, host = "rosie.db.elephantsql.com")
+    db= psycopg.connect(dbname = DATABASE_NAME, user=DATABASE_USER, password = DATABASE_PASSWORD, port = DATABASE_PORT, host = DATABASE_HOST)
     query = db.cursor()
     query.execute("SELECT AVG(ph), AVG(turbidity), AVG(dissoxy), AVG(temp), AVG(orp), AVG(conductivity) from allread;")
     reading = query.fetchone()
@@ -152,7 +163,7 @@ def count_averages():
     return {"avgph":avgph, "avgturbidity":avgturb, "avgdissox":avgdissoxy, "avgtemp":avgtemp, "avgoxired":avgorp, "avgconductivity":avgcond}
 @app.get('/Minimum', tags=["Counting Aggregate"])
 def count_minimum():
-    db= psycopg.connect(dbname = "vrhknqtr", user="vrhknqtr", password = "JiGHVmAPnBl77Wc1KyVwApir78hV8anj", port = 5432, host = "rosie.db.elephantsql.com")
+    db= psycopg.connect(dbname = DATABASE_NAME, user=DATABASE_USER, password = DATABASE_PASSWORD, port = DATABASE_PORT, host = DATABASE_HOST)
     query = db.cursor()
     query.execute("SELECT MIN(ph), MIN(turbidity), MIN(dissoxy), MIN(temp), MIN(orp), MIN(conductivity) from allread;")
     reading = query.fetchone()
@@ -166,7 +177,7 @@ def count_minimum():
 
 @app.get('/Maximum', tags=["Counting Aggregate"])
 def count_maximum():
-    db= psycopg.connect(dbname = "vrhknqtr", user="vrhknqtr", password = "JiGHVmAPnBl77Wc1KyVwApir78hV8anj", port = 5432, host = "rosie.db.elephantsql.com")
+    db= psycopg.connect(dbname = DATABASE_NAME, user=DATABASE_USER, password = DATABASE_PASSWORD, port = DATABASE_PORT, host = DATABASE_HOST)
     query = db.cursor()
     query.execute("SELECT Max(ph), Max(turbidity), Max(dissoxy), Max(temp), Max(orp), Max(conductivity) from allread;")
     reading = query.fetchone()
@@ -180,7 +191,7 @@ def count_maximum():
     
 @app.get('/Kelayakan-minum-secara-smart', tags=["Kelayakan minum secara smart"])
 def Kelayakan_last_reading():
-    db= psycopg.connect(dbname = "vrhknqtr", user="vrhknqtr", password = "JiGHVmAPnBl77Wc1KyVwApir78hV8anj", port = 5432, host = "rosie.db.elephantsql.com")
+    db= psycopg.connect(dbname = DATABASE_NAME, user=DATABASE_USER, password = DATABASE_PASSWORD, port = DATABASE_PORT, host = DATABASE_HOST)
     query = db.cursor()
     query.execute("SELECT AVG(ph), AVG(turbidity), AVG(dissoxy), AVG(temp), AVG(orp), AVG(conductivity) from allread;")
     avg= query.fetchone()
@@ -202,7 +213,7 @@ def Kelayakan_last_reading():
     return {"Kelayakan minum" : appropriateness}
 @app.get('/Kelayakan-minum-secara-smart2', tags=["Kelayakan minum secara smart"])
 def Kelayakan2():
-    db= psycopg.connect(dbname = "vrhknqtr", user="vrhknqtr", password = "JiGHVmAPnBl77Wc1KyVwApir78hV8anj", port = 5432, host = "rosie.db.elephantsql.com")
+    db= psycopg.connect(dbname = DATABASE_NAME, user=DATABASE_USER, password = DATABASE_PASSWORD, port = DATABASE_PORT, host = DATABASE_HOST)
     query = db.cursor()
     query.execute("Select ph, turbidity, dissoxy, temp from allread order by read_time desc;")
     lastread = query.fetchone()
@@ -210,7 +221,7 @@ def Kelayakan2():
     return {'Kelayakan minum' : {nilai, result}}
 @app.get('/Kelayakan-minum', tags=["Kelayakan minum secara normal"])
 def Kelayakan_minum():
-    db= psycopg.connect(dbname = "vrhknqtr", user="vrhknqtr", password = "JiGHVmAPnBl77Wc1KyVwApir78hV8anj", port = 5432, host = "rosie.db.elephantsql.com")
+    db= psycopg.connect(dbname = DATABASE_NAME, user=DATABASE_USER, password = DATABASE_PASSWORD, port = DATABASE_PORT, host = DATABASE_HOST)
     query = db.cursor()
     query.execute("Select ph, turbidity, dissoxy, temp, orp, conductivity from allread order by read_time desc;")
     lastreading = query.fetchone()
@@ -227,7 +238,7 @@ def Kelayakan_minum():
 
 @app.get('/Kelayakan-sanitasi', tags=["Kelayakan sanitasi"])
 def Kelayakan_sanitasi():
-    db= psycopg.connect(dbname = "vrhknqtr", user="vrhknqtr", password = "JiGHVmAPnBl77Wc1KyVwApir78hV8anj", port = 5432, host = "rosie.db.elephantsql.com")
+    db= psycopg.connect(dbname = DATABASE_NAME, user=DATABASE_USER, password = DATABASE_PASSWORD, port = DATABASE_PORT, host = DATABASE_HOST)
     query = db.cursor()
     query.execute("Select ph, turbidity, dissoxy, temp, orp, conductivity from allread order by read_time desc;")
     lastreading = query.fetchone()
@@ -242,7 +253,7 @@ def Kelayakan_sanitasi():
     return {"Kelayakan" : "Tidak layak"}
 @app.get('/Kelayakan-mandi', tags=["Kelayakan mandi"])
 def Kelayakan_mandi():
-    db= psycopg.connect(dbname = "vrhknqtr", user="vrhknqtr", password = "JiGHVmAPnBl77Wc1KyVwApir78hV8anj", port = 5432, host = "rosie.db.elephantsql.com")
+    db= psycopg.connect(dbname = DATABASE_NAME, user=DATABASE_USER, password = DATABASE_PASSWORD, port = DATABASE_PORT, host = DATABASE_HOST)
     query = db.cursor()
     query.execute("Select ph, turbidity, dissoxy, temp, orp, conductivity from allread order by read_time desc;")
     lastreading = query.fetchone()
@@ -259,7 +270,7 @@ def Kelayakan_mandi():
 
 @app.get('/Kelayakan-tani', tags=["Kelayakan tani"])
 def Kelayakan_sanitasi():
-    db= psycopg.connect(dbname = "vrhknqtr", user="vrhknqtr", password = "JiGHVmAPnBl77Wc1KyVwApir78hV8anj", port = 5432, host = "rosie.db.elephantsql.com")
+    db= psycopg.connect(dbname = DATABASE_NAME, user=DATABASE_USER, password = DATABASE_PASSWORD, port = DATABASE_PORT, host = DATABASE_HOST)
     query = db.cursor()
     query.execute("Select ph, turbidity, dissoxy, temp, orp, conductivity from allread order by read_time desc;")
     lastreading = query.fetchone()
@@ -280,7 +291,7 @@ def Kelayakan_sanitasi():
 
 @app.get('/Kelayakan-perikanan', tags=["Kelayakan perikanan"])
 def Kelayakan_sanitasi():
-    db= psycopg.connect(dbname = "vrhknqtr", user="vrhknqtr", password = "JiGHVmAPnBl77Wc1KyVwApir78hV8anj", port = 5432, host = "rosie.db.elephantsql.com")
+    db= psycopg.connect(dbname = DATABASE_NAME, user=DATABASE_USER, password = DATABASE_PASSWORD, port = DATABASE_PORT, host = DATABASE_HOST)
     query = db.cursor()
     query.execute("Select ph, turbidity, dissoxy, temp, orp, conductivity from allread order by read_time desc;")
     lastreading = query.fetchone()
@@ -301,7 +312,7 @@ def Kelayakan_sanitasi():
 
 @app.get('/last-read', tags=["Pembacaan nilai terakhir"])
 def last_read():
-    db= psycopg.connect(dbname = "vrhknqtr", user="vrhknqtr", password = "JiGHVmAPnBl77Wc1KyVwApir78hV8anj", port = 5432, host = "rosie.db.elephantsql.com")
+    db= psycopg.connect(dbname = DATABASE_NAME, user=DATABASE_USER, password = DATABASE_PASSWORD, port = DATABASE_PORT, host = DATABASE_HOST)
     query = db.cursor()
     query.execute("Select ph, turbidity, dissoxy, temp, orp, conductivity from allread order by read_time desc;")
     lastreading = query.fetchone()
