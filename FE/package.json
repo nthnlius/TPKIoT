@@ -1,0 +1,36 @@
+{
+  "name": "waterlity",
+  "version": "1.0.0",
+  "description": "euy",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "parcel index.html",
+    "build": "parcel build index.html",
+    "start": "parcel serve index.html --port $PORT",
+    "strt": "nodemon app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.9.8",
+    "nodemon": "^2.0.20"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.12.5"
+  },
+  "engines": {
+    "node": "14.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nthnlius/Reksti-Waterlity.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nthnlius/Reksti-Waterlity/issues"
+  },
+  "homepage": "https://github.com/nthnlius/Reksti-Waterlity#readme"
+}
